@@ -1,0 +1,54 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Προϋπολογισμός</h1><p>Όρισε πόσα θέλεις να ξοδεύεις κάθε μήνα ανά κατηγορία και δες πού βρίσκεσαι.</p></div>
+    <div class="header-actions"><app-month-nav [value]="month" (valueChange)="onMonthChange($event)" /></div>
+  </header>
+
+  @if (errorMessage && !hasLoaded) {
+    <section class="panel"><div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div></section>
+  } @else if (loading && !hasLoaded) {
+    <section class="panel"><div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div></section>
+  } @else {
+    <section class="panel" [class.is-loading]="loading">
+      <div class="panel-title">
+        <h2>Με όριο</h2>
+        @if (budgets.length) { <span class="summary"><strong class="amount" [class.expense]="totalSpent > totalLimit">{{ totalSpent | currency: 'EUR' }}</strong> από {{ totalLimit | currency: 'EUR' }}</span> }
+      </div>
+      <div class="panel-body">
+        @for (budget of budgets; track budget.categoryId) {
+          <div class="budget">
+            <app-category-icon [icon]="budget.categoryIcon" [color]="budget.categoryColor" />
+            <div class="grow">
+              <div class="line">
+                <strong>{{ budget.categoryName }}</strong>
+                <span class="amount"><strong [class.expense]="use(budget) > 100">{{ budget.spent | currency: 'EUR' }}</strong> / {{ budget.monthlyLimit | currency: 'EUR' }}</span>
+              </div>
+              <div class="bar" [class.over]="use(budget) > 100" [style.--c]="budget.categoryColor"><i [style.width.%]="use(budget) > 100 ? 100 : use(budget)"></i></div>
+              <small class="muted">
+                @if (use(budget) > 100) { <span class="expense">Ξεπέρασες το όριο κατά {{ budget.spent - budget.monthlyLimit | currency: 'EUR' }}</span> }
+                @else { Απομένουν {{ budget.monthlyLimit - budget.spent | currency: 'EUR' }} ({{ 100 - use(budget) | number: '1.0-0' }}%) }
+              </small>
+            </div>
+            <button mat-icon-button (click)="setLimit({ categoryId: budget.categoryId, categoryName: budget.categoryName, monthlyLimit: budget.monthlyLimit })" aria-label="Αλλαγή ορίου" matTooltip="Αλλαγή ορίου"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button color="warn" (click)="remove(budget)" aria-label="Αφαίρεση ορίου" matTooltip="Αφαίρεση ορίου"><mat-icon>close</mat-icon></button>
+          </div>
+        } @empty {
+          <p class="empty">Δεν έχεις ορίσει όρια ακόμα. Διάλεξε μια κατηγορία παρακάτω.</p>
+        }
+      </div>
+    </section>
+
+    @if (unbudgeted.length) {
+      <section class="panel">
+        <div class="panel-title"><h2>Χωρίς όριο</h2></div>
+        <div class="panel-body chips">
+          @for (category of unbudgeted; track category.id) {
+            <button class="pick" (click)="setLimit({ categoryId: category.id, categoryName: category.name, monthlyLimit: null })">
+              <app-category-icon [icon]="category.icon" [color]="category.color" [size]="28" />{{ category.name }}<mat-icon>add</mat-icon>
+            </button>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

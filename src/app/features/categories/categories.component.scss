@@ -1,0 +1,9 @@
+.groups { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.panel-title { padding-bottom: 4px; }
+.row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.row + .row { border-top: 1px solid var(--cf-border); }
+.row.archived { opacity: .65; }
+.grow { flex: 1; min-width: 0; display: grid; gap: 2px; font-size: 14px; }
+.grow small { font-size: 12px; }
+.empty { margin: 0; padding: 18px 0; color: var(--cf-muted); font-size: 13px; text-align: center; }
+@media (max-width: 900px) { .groups { grid-template-columns: 1fr; } }

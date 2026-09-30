@@ -1,0 +1,81 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Κινήσεις</h1><p>Όλα τα έσοδα και τα έξοδά σου.</p></div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="exportCsv()" [disabled]="exporting || !totalCount"><mat-icon>download</mat-icon> Excel (CSV)</button>
+      <button mat-stroked-button color="primary" (click)="add('Income')"><mat-icon>add</mat-icon> Έσοδο</button>
+      <button mat-flat-button color="primary" (click)="add('Expense')"><mat-icon>add</mat-icon> Έξοδο</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="filters">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Περίοδος</mat-label>
+        <mat-select [(value)]="period" (selectionChange)="onFilterChange()">
+          <mat-option value="month">Μήνας</mat-option>
+          <mat-option value="year">Έτος</mat-option>
+          <mat-option value="all">Όλες οι ημερομηνίες</mat-option>
+        </mat-select>
+      </mat-form-field>
+      @if (period !== 'all') {
+        <app-month-nav [value]="month" [unit]="period" (valueChange)="onMonthChange($event)" />
+      }
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Είδος</mat-label>
+        <mat-select [(value)]="type" (selectionChange)="onTypeChange()">
+          <mat-option value="">Όλα</mat-option>
+          <mat-option value="Income">Έσοδα</mat-option>
+          <mat-option value="Expense">Έξοδα</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Κατηγορία</mat-label>
+        <mat-select [(value)]="categoryId" (selectionChange)="onFilterChange()">
+          <mat-option value="">Όλες</mat-option>
+          @for (category of categoryOptions; track category.id) {
+            <mat-option [value]="category.id">{{ category.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
+        <mat-label>Αναζήτηση</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput #search [value]="query" (input)="onSearch(search.value)" placeholder="Περιγραφή, σημειώσεις ή κατηγορία" />
+      </mat-form-field>
+    </div>
+
+    <div class="totals">
+      <div><span>Έσοδα</span><strong class="income amount">{{ totalIncome | currency: 'EUR' }}</strong></div>
+      <div><span>Έξοδα</span><strong class="expense amount">{{ totalExpenses | currency: 'EUR' }}</strong></div>
+      <div><span>Υπόλοιπο</span><strong class="amount" [class.income]="net > 0" [class.expense]="net < 0">{{ net | currency: 'EUR' }}</strong></div>
+      <div><span>Κινήσεις</span><strong>{{ totalCount }}</strong></div>
+    </div>
+
+    @if (errorMessage && !hasLoaded) {
+      <div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div>
+    } @else if (loading && !hasLoaded) {
+      <div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div>
+    } @else {
+      @if (errorMessage) { <div class="state-banner" role="alert"><mat-icon>warning</mat-icon><span>{{ errorMessage }}</span><button mat-icon-button (click)="load()" aria-label="Δοκίμασε ξανά"><mat-icon>refresh</mat-icon></button></div> }
+
+      <div class="responsive-table" [class.is-loading]="loading"><table mat-table [dataSource]="transactions">
+        <ng-container matColumnDef="date"><th mat-header-cell *matHeaderCellDef>Ημερομηνία</th><td mat-cell *matCellDef="let row">{{ row.date | date: 'EEE d MMM y' }}</td></ng-container>
+        <ng-container matColumnDef="category"><th mat-header-cell *matHeaderCellDef>Κατηγορία</th><td mat-cell *matCellDef="let row"><span class="cat"><app-category-icon [icon]="row.categoryIcon" [color]="row.categoryColor" [size]="32" />{{ row.categoryName }}</span></td></ng-container>
+        <ng-container matColumnDef="description"><th mat-header-cell *matHeaderCellDef>Περιγραφή</th><td mat-cell *matCellDef="let row">
+          {{ row.description || '—' }}
+          @if (row.recurringTransactionId) { <mat-icon class="recurring" matTooltip="Από πάγια κίνηση">event_repeat</mat-icon> }
+          @if (row.notes) { <small class="notes">{{ row.notes }}</small> }
+        </td></ng-container>
+        <ng-container matColumnDef="amount"><th mat-header-cell *matHeaderCellDef class="num">Ποσό</th><td mat-cell *matCellDef="let row" class="num amount" [class.income]="row.type === 'Income'" [class.expense]="row.type === 'Expense'"><strong>{{ row.type === 'Income' ? '+' : '−' }}{{ row.amount | currency: 'EUR' }}</strong></td></ng-container>
+        <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let row" class="action-cell">
+          <button mat-icon-button (click)="edit(row)" aria-label="Επεξεργασία" matTooltip="Επεξεργασία"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="remove(row)" aria-label="Διαγραφή" matTooltip="Διαγραφή"><mat-icon>delete_outline</mat-icon></button>
+        </td></ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow><td class="mat-cell empty-cell" [attr.colspan]="displayedColumns.length">Δεν υπάρχουν κινήσεις για αυτά τα φίλτρα.</td></tr>
+      </table></div>
+      <mat-paginator [length]="totalCount" [pageIndex]="pageIndex" [pageSize]="pageSize" [pageSizeOptions]="[25, 50, 100]" (page)="onPage($event)" showFirstLastButtons aria-label="Σελίδες"></mat-paginator>
+    }
+  </section>
+</div>

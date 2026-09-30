@@ -1,0 +1,49 @@
+:root {
+  --cf-primary: #005cbb;
+  --cf-primary-soft: #e8f0fb;
+  --cf-bg: #f5f7fa;
+  --cf-surface: #ffffff;
+  --cf-text: #172033;
+  --cf-muted: #697386;
+  --cf-border: #e5e8ef;
+  --cf-danger: #c62f3f;
+  --cf-income: #13866b;
+  --cf-expense: #c2410c;
+  font-family: Roboto, 'Segoe UI', Arial, sans-serif;
+  color: var(--cf-text);
+  background: var(--cf-bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--cf-bg);
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.income {
+  color: var(--cf-income);
+}
+.expense {
+  color: var(--cf-expense);
+}
+.muted {
+  color: var(--cf-muted);
+}
+.amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// `hidden` must win over components that set their own display (e.g. `:host { display: block }`).
+[hidden] {
+  display: none !important;
+}

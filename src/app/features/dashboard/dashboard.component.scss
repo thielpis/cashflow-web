@@ -1,0 +1,26 @@
+.setup { padding: 20px; display: flex; align-items: center; gap: 16px; background: linear-gradient(120deg, #e8f0fb, #e9f8f2); }
+.setup > mat-icon { width: 40px; height: 40px; font-size: 40px; color: var(--cf-primary); }
+.setup div { flex: 1; display: grid; gap: 4px; }
+.setup span { color: var(--cf-muted); font-size: 13px; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpi { padding: 18px 20px; display: grid; gap: 6px; }
+.kpi .label { display: flex; align-items: center; gap: 6px; color: var(--cf-muted); font-size: 13px; font-weight: 600; }
+.kpi .label mat-icon { width: 18px; height: 18px; font-size: 18px; }
+.kpi strong { font-size: 26px; letter-spacing: -.5px; }
+.kpi small { font-size: 12px; }
+.grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
+.stack { display: grid; gap: 16px; }
+.category-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
+.category-row small { font-size: 11px; }
+.grow { flex: 1; min-width: 0; display: grid; gap: 5px; }
+.line { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.upcoming { display: flex; align-items: center; gap: 12px; padding: 8px 0; font-size: 14px; }
+.upcoming + .upcoming, .recent + .recent { border-top: 1px solid var(--cf-border); }
+.day { min-width: 58px; padding: 4px 8px; border-radius: 8px; background: var(--cf-primary-soft); color: var(--cf-primary); font-size: 12px; font-weight: 700; text-align: center; }
+.recent { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 4px; border: 0; background: none; text-align: left; cursor: pointer; font-size: 14px; }
+.recent:hover { background: #f7f9fc; }
+.recent .grow { gap: 2px; }
+.recent small { font-size: 12px; }
+.empty { margin: 0; padding: 18px 0; color: var(--cf-muted); font-size: 13px; text-align: center; }
+@media (max-width: 1100px) { .kpis { grid-template-columns: 1fr 1fr; } .grid { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .kpis { grid-template-columns: 1fr; } .setup { flex-direction: column; text-align: center; } }

@@ -1,0 +1,53 @@
+<div class="login-page">
+  <section class="showcase">
+    <div class="brand"><span class="brand-mark"><mat-icon>account_balance_wallet</mat-icon></span>Cash<span>Flow</span></div>
+    <div class="hero-copy">
+      <h1>Τα οικονομικά σου,<br><strong>μήνα με τον μήνα.</strong></h1>
+      <p>Κατέγραψε έσοδα και έξοδα, όρισε όρια ανά κατηγορία<br>και δες πού πάνε τα χρήματά σου.</p>
+    </div>
+    <ul class="benefits">
+      <li><mat-icon>insights</mat-icon><span>Μηνιαία εικόνα<br>με μια ματιά</span></li>
+      <li><mat-icon>event_repeat</mat-icon><span>Πάγιες κινήσεις<br>αυτόματα</span></li>
+      <li><mat-icon>savings</mat-icon><span>Όρια ανά<br>κατηγορία</span></li>
+    </ul>
+  </section>
+
+  <main class="form-side">
+    <form class="login-card" [formGroup]="form" (ngSubmit)="submit()">
+      <header>
+        <div class="mobile-brand">Cash<span>Flow</span></div>
+        <h2>Καλώς ήρθες!</h2>
+        <p>Συνδέσου για να συνεχίσεις</p>
+      </header>
+
+      <div class="field">
+        <label for="login-email">Email ή όνομα χρήστη</label>
+        <div class="input-wrap">
+          <mat-icon aria-hidden="true">mail_outline</mat-icon>
+          <input id="login-email" type="text" formControlName="email" placeholder="email@example.com" autocomplete="username" />
+        </div>
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small>Συμπλήρωσε το email ή το όνομα χρήστη σου.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="login-password">Κωδικός πρόσβασης</label>
+        <div class="input-wrap">
+          <mat-icon aria-hidden="true">lock_outline</mat-icon>
+          <input id="login-password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" autocomplete="current-password" />
+          <button class="eye" type="button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Απόκρυψη κωδικού' : 'Εμφάνιση κωδικού'">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small>Συμπλήρωσε τον κωδικό σου.</small>
+        }
+      </div>
+
+      <button class="login-button" type="submit" [disabled]="loading">{{ loading ? 'Σύνδεση…' : 'Σύνδεση' }}</button>
+
+      @if (error) { <div class="error" role="alert">{{ error }}</div> }
+    </form>
+  </main>
+</div>

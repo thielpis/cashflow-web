@@ -1,0 +1,40 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Πάγιες κινήσεις</h1><p>Μισθός, ενοίκιο, συνδρομές: καταχωρούνται αυτόματα κάθε μήνα την ημέρα που ορίζεις.</p></div>
+    <div class="header-actions">
+      @if (hasLoaded && items.length) {
+        <span class="chip ok">+{{ total('Income') | currency: 'EUR' }} / μήνα</span>
+        <span class="chip">−{{ total('Expense') | currency: 'EUR' }} / μήνα</span>
+      }
+      <button mat-flat-button color="primary" (click)="add()"><mat-icon>add</mat-icon> Νέα πάγια κίνηση</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    @if (errorMessage && !hasLoaded) {
+      <div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div>
+    } @else if (loading && !hasLoaded) {
+      <div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div>
+    } @else if (!items.length) {
+      <div class="page-state empty-state"><mat-icon>event_repeat</mat-icon><strong>Δεν υπάρχουν πάγιες κινήσεις</strong><span>Πρόσθεσε ό,τι επαναλαμβάνεται κάθε μήνα και δεν θα χρειάζεται να το περνάς με το χέρι.</span><button mat-flat-button color="primary" (click)="add()"><mat-icon>add</mat-icon> Νέα πάγια κίνηση</button></div>
+    } @else {
+      <div class="responsive-table" [class.is-loading]="loading"><table mat-table [dataSource]="items">
+        <ng-container matColumnDef="description"><th mat-header-cell *matHeaderCellDef>Κίνηση</th><td mat-cell *matCellDef="let row"><span class="cat"><app-category-icon [icon]="row.categoryIcon" [color]="row.categoryColor" [size]="32" /><span><strong>{{ row.description || row.categoryName }}</strong><small>{{ row.categoryName }}</small></span></span></td></ng-container>
+        <ng-container matColumnDef="amount"><th mat-header-cell *matHeaderCellDef class="num">Ποσό</th><td mat-cell *matCellDef="let row" class="num amount" [class.income]="row.type === 'Income'" [class.expense]="row.type === 'Expense'"><strong>{{ row.type === 'Income' ? '+' : '−' }}{{ row.amount | currency: 'EUR' }}</strong></td></ng-container>
+        <ng-container matColumnDef="day"><th mat-header-cell *matHeaderCellDef>Ημέρα</th><td mat-cell *matCellDef="let row">{{ row.dayOfMonth }} του μήνα</td></ng-container>
+        <ng-container matColumnDef="period"><th mat-header-cell *matHeaderCellDef>Διάρκεια</th><td mat-cell *matCellDef="let row">από {{ row.startDate | date: 'MMM y' }}{{ row.endDate ? ' έως ' + (row.endDate | date: 'MMM y') : '' }}</td></ng-container>
+        <ng-container matColumnDef="next"><th mat-header-cell *matHeaderCellDef>Επόμενη</th><td mat-cell *matCellDef="let row">
+          @if (!row.isActive) { <span class="chip">Σε παύση</span> }
+          @else if (row.nextDate) { {{ row.nextDate | date: 'd MMM y' }} }
+          @else { <span class="chip">Έληξε</span> }
+        </td></ng-container>
+        <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef></th><td mat-cell *matCellDef="let row" class="action-cell">
+          <button mat-icon-button (click)="toggle(row)" [attr.aria-label]="row.isActive ? 'Παύση' : 'Ενεργοποίηση'" [matTooltip]="row.isActive ? 'Παύση' : 'Ενεργοποίηση'"><mat-icon>{{ row.isActive ? 'pause_circle' : 'play_circle' }}</mat-icon></button>
+          <button mat-icon-button (click)="edit(row)" aria-label="Επεξεργασία" matTooltip="Επεξεργασία"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="remove(row)" aria-label="Διαγραφή" matTooltip="Διαγραφή"><mat-icon>delete_outline</mat-icon></button>
+        </td></ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row; columns: displayedColumns;" [style.opacity]="row.isActive ? 1 : 0.6"></tr>
+      </table></div>
+    }
+  </section>
+</div>

@@ -1,0 +1,62 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Ετήσια εικόνα</h1><p>Έσοδα, έξοδα και αποταμίευση ανά μήνα και κατηγορία.</p></div>
+    <div class="header-actions"><app-month-nav [value]="period" unit="year" (valueChange)="onYearChange($event)" /></div>
+  </header>
+
+  @if (errorMessage && !report) {
+    <section class="panel"><div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div></section>
+  } @else if (loading && !report) {
+    <section class="panel"><div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div></section>
+  } @else if (report) {
+    <div class="kpis" [class.is-loading]="loading">
+      <div class="panel kpi"><span>Έσοδα {{ report.year }}</span><strong class="amount income">{{ report.income | currency: 'EUR' }}</strong></div>
+      <div class="panel kpi"><span>Έξοδα {{ report.year }}</span><strong class="amount expense">{{ report.expenses | currency: 'EUR' }}</strong></div>
+      <div class="panel kpi"><span>Υπόλοιπο</span><strong class="amount" [class.income]="report.net > 0" [class.expense]="report.net < 0">{{ report.net | currency: 'EUR' }}</strong></div>
+      <div class="panel kpi"><span>Αποταμίευση</span><strong>{{ report.savingsRate === null ? '—' : (report.savingsRate | number: '1.0-1') + '%' }}</strong><small class="muted">Μ.Ο. εξόδων {{ monthlyAverageExpenses | currency: 'EUR' : 'symbol' : '1.0-0' }}/μήνα</small></div>
+    </div>
+
+    <section class="panel" [class.is-loading]="loading">
+      <div class="panel-title"><h2>Ανά μήνα</h2></div>
+      <div class="panel-body"><app-finance-chart [months]="report.months" /></div>
+      <div class="responsive-table">
+        <table class="months">
+          <thead><tr><th>Μήνας</th><th class="num">Έσοδα</th><th class="num">Έξοδα</th><th class="num">Υπόλοιπο</th></tr></thead>
+          <tbody>
+            @for (m of report.months; track m.month) {
+              <tr [class.muted]="!m.income && !m.expenses">
+                <td>{{ monthNames[m.month - 1] }}</td>
+                <td class="num amount">{{ m.income | currency: 'EUR' }}</td>
+                <td class="num amount">{{ m.expenses | currency: 'EUR' }}</td>
+                <td class="num amount" [class.income]="m.net > 0" [class.expense]="m.net < 0">{{ m.net | currency: 'EUR' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot><tr><th>Σύνολο</th><th class="num amount">{{ report.income | currency: 'EUR' }}</th><th class="num amount">{{ report.expenses | currency: 'EUR' }}</th><th class="num amount">{{ report.net | currency: 'EUR' }}</th></tr></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <div class="split" [class.is-loading]="loading">
+      @for (side of [{ title: 'Έξοδα ανά κατηγορία', items: report.expenseCategories }, { title: 'Έσοδα ανά κατηγορία', items: report.incomeCategories }]; track side.title) {
+        <section class="panel">
+          <div class="panel-title"><h2>{{ side.title }}</h2></div>
+          <div class="panel-body">
+            @for (item of side.items; track item.categoryId) {
+              <div class="category-row">
+                <app-category-icon [icon]="item.icon" [color]="item.color" />
+                <div class="grow">
+                  <div class="line"><span>{{ item.name }}</span><strong class="amount">{{ item.amount | currency: 'EUR' }}</strong></div>
+                  <div class="bar" [style.--c]="item.color"><i [style.width.%]="share(item)"></i></div>
+                  <small class="muted">{{ share(item) | number: '1.0-1' }}% του συνόλου</small>
+                </div>
+              </div>
+            } @empty {
+              <p class="empty">Καμία κίνηση το {{ report.year }}.</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>

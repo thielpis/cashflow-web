@@ -1,0 +1,11 @@
+.summary { font-size: 13px; color: var(--cf-muted); }
+.budget { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.budget + .budget { border-top: 1px solid var(--cf-border); }
+.grow { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.line { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+.grow small { font-size: 12px; }
+.empty { margin: 0; padding: 18px 0; color: var(--cf-muted); font-size: 13px; text-align: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.pick { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px 5px 5px; border: 1px solid var(--cf-border); border-radius: 99px; background: white; font-size: 13px; cursor: pointer; }
+.pick:hover { border-color: var(--cf-primary); color: var(--cf-primary); }
+.pick mat-icon { width: 18px; height: 18px; font-size: 18px; color: var(--cf-muted); }

@@ -1,0 +1,17 @@
+.filters { padding: 18px 20px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.filters mat-form-field { width: 170px; }
+.filters .search { flex: 1; min-width: 220px; }
+.totals { margin: 16px 20px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--cf-border); border-radius: 12px; }
+.totals div { padding: 12px 16px; display: grid; gap: 4px; }
+.totals div + div { border-left: 1px solid var(--cf-border); }
+.totals span { color: var(--cf-muted); font-size: 12px; }
+.totals strong { font-size: 18px; }
+.recurring { width: 16px; height: 16px; font-size: 16px; vertical-align: middle; color: var(--cf-muted); }
+.notes { display: block; color: var(--cf-muted); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 700px) {
+  .filters { padding: 14px 14px 0; }
+  .filters mat-form-field { width: calc(50% - 6px); }
+  .totals { margin: 14px; grid-template-columns: 1fr 1fr; }
+  .totals div:nth-child(3) { border-left: 0; }
+  .totals div:nth-child(n + 3) { border-top: 1px solid var(--cf-border); }
+}
