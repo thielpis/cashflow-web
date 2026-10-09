@@ -44,6 +44,87 @@
       </div>
     </div>
 
+    <div class="grid3" [class.is-loading]="loading">
+      <section class="panel">
+        <div class="panel-title"><h2>Αναμενόμενα · {{ monthName }}</h2><a routerLink="/recurring">Πάγιες</a></div>
+        <div class="panel-body expected">
+          <div class="expected-row">
+            <div class="line"><span><mat-icon class="income">north_east</mat-icon> Έσοδα</span><strong class="amount">{{ expectedIncome | currency: 'EUR' }}</strong></div>
+            <div class="bar" [style.--c]="'var(--cf-income)'"><i [style.width.%]="ratio(data.income, expectedIncome)"></i></div>
+            <small class="muted">{{ data.income | currency: 'EUR' }} μπήκαν@if (upcomingIncome > 0) { · {{ upcomingIncome | currency: 'EUR' }} πάγια έρχονται }</small>
+          </div>
+          <div class="expected-row">
+            <div class="line"><span><mat-icon class="expense">south_east</mat-icon> Έξοδα</span><strong class="amount">{{ expectedExpenses | currency: 'EUR' }}</strong></div>
+            <div class="bar" [style.--c]="'var(--cf-expense)'"><i [style.width.%]="ratio(data.expenses, expectedExpenses)"></i></div>
+            <small class="muted">{{ data.expenses | currency: 'EUR' }} βγήκαν@if (upcomingExpenses > 0) { · {{ upcomingExpenses | currency: 'EUR' }} πάγια }@if (upcomingGifts > 0) { · {{ upcomingGifts | currency: 'EUR' }} δώρα }</small>
+          </div>
+          <div class="line expected-net"><span>Αναμενόμενο υπόλοιπο</span><strong class="amount" [class.income]="expectedIncome - expectedExpenses > 0" [class.expense]="expectedIncome - expectedExpenses < 0">{{ expectedIncome - expectedExpenses | currency: 'EUR' }}</strong></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><h2>Στόχοι</h2><a routerLink="/goals">Όλοι</a></div>
+        <div class="panel-body">
+          @for (goal of openGoals; track goal.id) {
+            <a class="goal-row" routerLink="/goals">
+              <app-category-icon [icon]="goal.icon" [color]="goal.color" [size]="32" />
+              <span class="grow">
+                <span class="line"><span class="goal-name">{{ goal.name }}</span><small class="muted">{{ goal.saved | currency: 'EUR' : 'symbol' : '1.0-0' }} / {{ goal.targetAmount | currency: 'EUR' : 'symbol' : '1.0-0' }}</small></span>
+                <span class="bar" [style.--c]="goal.color"><i [style.width.%]="goal.progress"></i></span>
+                <small class="muted">Λείπουν {{ goal.remaining | currency: 'EUR' }}@if (goal.monthlyNeeded) { · {{ goal.monthlyNeeded | currency: 'EUR' }}/μήνα }</small>
+              </span>
+            </a>
+          } @empty {
+            <p class="empty">Δεν έχεις ανοιχτούς στόχους. <a routerLink="/goals">Βάλε έναν</a></p>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><h2>Γιορτές & γενέθλια</h2><a routerLink="/celebrations">Εορτολόγιο</a></div>
+        <div class="panel-body">
+          @for (item of comingCelebrations; track item.personId + item.kind + item.date) {
+            <div class="upcoming">
+              <span class="day">{{ item.date | date: 'd MMM' }}</span>
+              <mat-icon class="celebration-icon" [class.birthday]="item.kind === 'Birthday'">{{ item.kind === 'Birthday' ? 'cake' : 'celebration' }}</mat-icon>
+              <span class="grow"><span>{{ item.personName }}</span><small class="muted">{{ celebrationLabel(item) }} · {{ dueLabel(item.daysLeft) }}</small></span>
+              @if (item.giftBudget) { <strong class="amount">{{ item.giftBudget | currency: 'EUR' }}</strong> }
+            </div>
+          } @empty {
+            <p class="empty">Καμία γιορτή ή γενέθλια τις επόμενες 30 μέρες. <a routerLink="/people">Πρόσωπα</a></p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <section class="panel" [class.is-loading]="loading">
+      <div class="panel-title">
+        <h2>Εκκρεμότητες · {{ monthName }}</h2>
+        <a routerLink="/recurring">Πάγιες</a>
+      </div>
+      <div class="panel-body">
+        @if (dues.length) {
+          <p class="dues-summary">Τακτοποιήθηκαν <strong>{{ paidCount }}</strong> από {{ dues.length }}@if (unpaidTotal > 0) { · μένει να πληρώσεις <strong class="expense">{{ unpaidTotal | currency: 'EUR' }}</strong>}@if (unreceivedTotal > 0) { · μένει να εισπράξεις <strong class="income">{{ unreceivedTotal | currency: 'EUR' }}</strong>}</p>
+        }
+        @for (item of dues; track item.recurringTransactionId) {
+          <div class="due" [class.paid]="item.paidOn" [class.overdue]="!item.paidOn && item.daysLeft < 0">
+            <mat-checkbox color="primary" [checked]="!!item.paidOn" [disabled]="savingDue === item" (change)="togglePaid(item, $event)" [attr.aria-label]="done(item) + ': ' + (item.description || item.categoryName)" />
+            <span class="day">{{ item.dueDate | date: 'd MMM' }}</span>
+            <app-category-icon [icon]="item.categoryIcon" [color]="item.categoryColor" [size]="28" />
+            <span class="grow">
+              <span class="due-name">{{ item.description || item.categoryName }}</span>
+              <small class="muted">
+                @if (item.paidOn) { {{ done(item) }} {{ item.paidOn | date: 'd MMM' }} } @else { <span class="due-when">{{ dueLabel(item.daysLeft) }}</span> }
+              </small>
+            </span>
+            <strong class="amount" [class.income]="item.type === 'Income'">{{ item.type === 'Income' ? '+' : '' }}{{ item.amount | currency: 'EUR' }}</strong>
+          </div>
+        } @empty {
+          <p class="empty">Δεν υπάρχουν πάγιες κινήσεις αυτόν τον μήνα. <a routerLink="/recurring">Πρόσθεσε μία</a></p>
+        }
+      </div>
+    </section>
+
     <div class="grid" [class.is-loading]="loading">
       <section class="panel">
         <div class="panel-title"><h2>Έξοδα ανά κατηγορία</h2><a routerLink="/budgets">Όρια</a></div>

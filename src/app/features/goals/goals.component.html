@@ -1,0 +1,80 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Στόχοι</h1><p>Αυτοκίνητο, διακοπές, ταμείο έκτακτης ανάγκης: δες πόσα μάζεψες και πόσα λείπουν.</p></div>
+    <div class="header-actions">
+      @if (hasLoaded && items.length) {
+        <span class="chip ok">Μαζεμένα {{ totalSaved | currency: 'EUR' }}</span>
+        @if (monthlyNeeded > 0) { <span class="chip">{{ monthlyNeeded | currency: 'EUR' }} / μήνα</span> }
+      }
+      <button mat-flat-button color="primary" (click)="add()"><mat-icon>add</mat-icon> Νέος στόχος</button>
+    </div>
+  </header>
+
+  @if (errorMessage && !hasLoaded) {
+    <section class="panel"><div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div></section>
+  } @else if (loading && !hasLoaded) {
+    <section class="panel"><div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div></section>
+  } @else if (!items.length) {
+    <section class="panel"><div class="page-state empty-state"><mat-icon>flag</mat-icon><strong>Δεν έχεις βάλει στόχους</strong><span>Όρισε τι θέλεις να αποκτήσεις και πόσα χρειάζεσαι. Κάθε φορά που βάζεις χρήματα στην άκρη, σημείωσέ τα εδώ.</span><button mat-flat-button color="primary" (click)="add()"><mat-icon>add</mat-icon> Νέος στόχος</button></div></section>
+  } @else {
+    <div class="goals" [class.is-loading]="loading">
+      @for (goal of items; track goal.id) {
+        <section class="panel goal" [class.reached]="goal.isReached" [style.--c]="goal.color || '#2a78d6'">
+          <div class="goal-head">
+            <app-category-icon [icon]="goal.icon" [color]="goal.color" [size]="44" />
+            <div class="grow">
+              <h2>{{ goal.name }}</h2>
+              <small class="muted">
+                @if (goal.isReached) { <span class="chip ok">Επιτεύχθηκε</span> }
+                @else if (goal.targetDate) { Έως {{ goal.targetDate | date: 'd MMM y' }} · {{ goal.monthsLeft === 1 ? 'τελευταίος μήνας' : goal.monthsLeft + ' μήνες' }} }
+                @else { Χωρίς προθεσμία }
+              </small>
+            </div>
+            <button mat-icon-button (click)="edit(goal)" aria-label="Επεξεργασία" matTooltip="Επεξεργασία"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button color="warn" (click)="remove(goal)" aria-label="Διαγραφή" matTooltip="Διαγραφή"><mat-icon>delete_outline</mat-icon></button>
+          </div>
+
+          <div class="figures">
+            <strong class="saved">{{ goal.saved | currency: 'EUR' }}</strong>
+            <span class="muted">από {{ goal.targetAmount | currency: 'EUR' }}</span>
+            <span class="pct">{{ goal.progress | number: '1.0-0' }}%</span>
+          </div>
+          <div class="bar" role="progressbar" [attr.aria-valuenow]="goal.progress" aria-valuemin="0" aria-valuemax="100"><i [style.width.%]="goal.progress"></i></div>
+
+          <div class="facts">
+            @if (!goal.isReached) {
+              <span><mat-icon>hourglass_bottom</mat-icon> Λείπουν <strong>{{ goal.remaining | currency: 'EUR' }}</strong></span>
+              @if (goal.monthlyNeeded) { <span><mat-icon>calendar_month</mat-icon> <strong>{{ goal.monthlyNeeded | currency: 'EUR' }}</strong> τον μήνα για να τον πετύχεις</span> }
+            } @else {
+              <span><mat-icon>celebration</mat-icon> Τα κατάφερες!</span>
+            }
+          </div>
+          @if (goal.notes) { <p class="notes">{{ goal.notes }}</p> }
+
+          <div class="actions">
+            <button mat-flat-button color="primary" (click)="contribute(goal, false)"><mat-icon>add</mat-icon> Κατάθεση</button>
+            <button mat-stroked-button (click)="contribute(goal, true)" [disabled]="goal.saved <= 0"><mat-icon>remove</mat-icon> Ανάληψη</button>
+            @if (goal.contributions.length) {
+              <button mat-button class="history-toggle" (click)="toggleHistory(goal)" [attr.aria-expanded]="expandedId === goal.id">
+                Ιστορικό ({{ goal.contributions.length }}) <mat-icon>{{ expandedId === goal.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+            }
+          </div>
+
+          @if (expandedId === goal.id) {
+            <ul class="history">
+              @for (item of goal.contributions; track item.id) {
+                <li>
+                  <span class="day">{{ item.date | date: 'd MMM y' }}</span>
+                  <span class="grow muted">{{ item.note || (item.amount < 0 ? 'Ανάληψη' : 'Κατάθεση') }}</span>
+                  <strong [class.income]="item.amount > 0" [class.expense]="item.amount < 0">{{ item.amount > 0 ? '+' : '−' }}{{ (item.amount < 0 ? -item.amount : item.amount) | currency: 'EUR' }}</strong>
+                  <button mat-icon-button (click)="removeContribution(goal, item)" aria-label="Διαγραφή κίνησης" matTooltip="Διαγραφή"><mat-icon>close</mat-icon></button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

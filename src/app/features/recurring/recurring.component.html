@@ -1,6 +1,6 @@
 <div class="page">
   <header class="page-header">
-    <div><h1>Πάγιες κινήσεις</h1><p>Μισθός, ενοίκιο, συνδρομές: καταχωρούνται αυτόματα κάθε μήνα την ημέρα που ορίζεις.</p></div>
+    <div><h1>Πάγιες κινήσεις</h1><p>Μισθός, ενοίκιο, συνδρομές: σου τις θυμίζουμε κάθε μήνα την ημέρα που ορίζεις και καταχωρούνται όταν τις τσεκάρεις ως πληρωμένες ή εισπραγμένες.</p></div>
     <div class="header-actions">
       @if (hasLoaded && items.length) {
         <span class="chip ok">+{{ total('Income') | currency: 'EUR' }} / μήνα</span>
@@ -16,7 +16,7 @@
     } @else if (loading && !hasLoaded) {
       <div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div>
     } @else if (!items.length) {
-      <div class="page-state empty-state"><mat-icon>event_repeat</mat-icon><strong>Δεν υπάρχουν πάγιες κινήσεις</strong><span>Πρόσθεσε ό,τι επαναλαμβάνεται κάθε μήνα και δεν θα χρειάζεται να το περνάς με το χέρι.</span><button mat-flat-button color="primary" (click)="add()"><mat-icon>add</mat-icon> Νέα πάγια κίνηση</button></div>
+      <div class="page-state empty-state"><mat-icon>event_repeat</mat-icon><strong>Δεν υπάρχουν πάγιες κινήσεις</strong><span>Πρόσθεσε ό,τι επαναλαμβάνεται κάθε μήνα: θα σου το θυμίζουμε και με ένα τσεκ θα καταχωρείται.</span><button mat-flat-button color="primary" (click)="add()"><mat-icon>add</mat-icon> Νέα πάγια κίνηση</button></div>
     } @else {
       <div class="responsive-table" [class.is-loading]="loading"><table mat-table [dataSource]="items">
         <ng-container matColumnDef="description"><th mat-header-cell *matHeaderCellDef>Κίνηση</th><td mat-cell *matCellDef="let row"><span class="cat"><app-category-icon [icon]="row.categoryIcon" [color]="row.categoryColor" [size]="32" /><span><strong>{{ row.description || row.categoryName }}</strong><small>{{ row.categoryName }}</small></span></span></td></ng-container>

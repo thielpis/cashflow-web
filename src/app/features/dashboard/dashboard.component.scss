@@ -8,6 +8,20 @@
 .kpi .label mat-icon { width: 18px; height: 18px; font-size: 18px; }
 .kpi strong { font-size: 26px; letter-spacing: -.5px; }
 .kpi small { font-size: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.expected { display: grid; gap: 14px; }
+.expected-row { display: grid; gap: 6px; }
+.expected-row small { font-size: 12px; }
+.expected .line span { display: inline-flex; align-items: center; gap: 6px; }
+.expected .line mat-icon { width: 18px; height: 18px; font-size: 18px; }
+.expected-net { padding-top: 10px; border-top: 1px solid var(--cf-border); font-weight: 600; }
+.goal-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; color: inherit; text-decoration: none; }
+.goal-row + .goal-row { border-top: 1px solid var(--cf-border); }
+.goal-row small { font-size: 12px; }
+.goal-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
+.celebration-icon { flex: 0 0 auto; width: 20px; height: 20px; font-size: 20px; color: #e8743b; }
+.celebration-icon.birthday { color: #c2185b; }
+.upcoming small { display: block; font-size: 12px; }
 .grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; align-items: start; }
 .stack { display: grid; gap: 16px; }
 .category-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
@@ -21,6 +35,15 @@
 .recent:hover { background: #f7f9fc; }
 .recent .grow { gap: 2px; }
 .recent small { font-size: 12px; }
+.dues-summary { margin: 0 0 8px; color: var(--cf-muted); font-size: 13px; }
+.due { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 14px; }
+.due + .due { border-top: 1px solid var(--cf-border); }
+.due .grow { gap: 1px; }
+.due small { font-size: 12px; }
+.due.paid .due-name, .due.paid .amount { color: var(--cf-muted); text-decoration: line-through; }
+.due.paid .day { background: #eff1f4; color: var(--cf-muted); }
+.due.overdue .day { background: #fff4f4; color: var(--cf-danger); }
+.due.overdue .due-when { color: var(--cf-danger); font-weight: 600; }
 .empty { margin: 0; padding: 18px 0; color: var(--cf-muted); font-size: 13px; text-align: center; }
-@media (max-width: 1100px) { .kpis { grid-template-columns: 1fr 1fr; } .grid { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .kpis { grid-template-columns: 1fr 1fr; } .grid, .grid3 { grid-template-columns: 1fr; } }
 @media (max-width: 520px) { .kpis { grid-template-columns: 1fr; } .setup { flex-direction: column; text-align: center; } }

@@ -21,6 +21,7 @@ import { GreekPaginatorIntl } from '../../core/i18n/greek-paginator-intl';
 import { Category, TransactionType } from '../../core/models/category.model';
 import { Transaction, TransactionSearchParams } from '../../core/models/transaction.model';
 import { CategoryService } from '../../core/services/category.service';
+import { RemindersStore } from '../../core/services/reminders.store';
 import { TransactionService } from '../../core/services/transaction.service';
 import { CategoryIconComponent } from '../../shared/ui/category-icon.component';
 import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
@@ -56,6 +57,7 @@ type Period = 'month' | 'year' | 'all';
 export class TransactionsComponent {
   private readonly transactionService = inject(TransactionService);
   private readonly categoryService = inject(CategoryService);
+  private readonly reminders = inject(RemindersStore);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly search$ = new Subject<string>();
@@ -172,6 +174,8 @@ export class TransactionsComponent {
     try {
       await firstValueFrom(this.transactionService.delete(transaction.id));
       this.snackBar.open('Η κίνηση διαγράφηκε.', 'Κλείσιμο', { duration: 3000 });
+      // Deleting a recurring entry unticks its month, which is pending again.
+      if (transaction.recurringTransactionId) void this.reminders.refresh();
       await this.load();
     } catch (error: unknown) {
       this.snackBar.open(apiErrorMessage(error, 'Η κίνηση δεν διαγράφηκε.'), 'Κλείσιμο', { duration: 5000 });

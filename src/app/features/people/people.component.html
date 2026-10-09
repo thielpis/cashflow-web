@@ -1,0 +1,76 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Αγαπημένα πρόσωπα</h1><p>Στοιχεία επικοινωνίας, γενέθλια και γιορτές, για να μη σου ξεφύγει κανένα δώρο.</p></div>
+    <div class="header-actions">
+      <a mat-stroked-button color="primary" routerLink="/celebrations"><mat-icon>event</mat-icon> Εορτολόγιο</a>
+      <button mat-flat-button color="primary" (click)="add()"><mat-icon>person_add</mat-icon> Νέο πρόσωπο</button>
+    </div>
+  </header>
+
+  @if (errorMessage && !hasLoaded) {
+    <section class="panel"><div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div></section>
+  } @else if (loading && !hasLoaded) {
+    <section class="panel"><div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div></section>
+  } @else if (!items.length) {
+    <section class="panel"><div class="page-state empty-state"><mat-icon>favorite</mat-icon><strong>Δεν έχεις προσθέσει πρόσωπα</strong><span>Πρόσθεσε οικογένεια και φίλους με τα γενέθλιά τους. Η γιορτή βρίσκεται αυτόματα από το εορτολόγιο και θα σου θυμίζουμε έγκαιρα.</span><button mat-flat-button color="primary" (click)="add()"><mat-icon>person_add</mat-icon> Νέο πρόσωπο</button></div></section>
+  } @else {
+    <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+      <mat-icon matIconPrefix>search</mat-icon>
+      <mat-label>Αναζήτηση</mat-label>
+      <input matInput [(ngModel)]="query" (ngModelChange)="group()" placeholder="Όνομα, σχέση, τηλέφωνο…" />
+    </mat-form-field>
+
+    <div class="families" [class.is-loading]="loading">
+      @for (family of families; track family.person.id) {
+        <section class="panel family">
+          <ng-container *ngTemplateOutlet="card; context: { $implicit: family.person, member: false }" />
+          @if (family.members.length) {
+            <div class="members">
+              @for (member of family.members; track member.id) {
+                <ng-container *ngTemplateOutlet="card; context: { $implicit: member, member: true }" />
+              }
+            </div>
+          }
+          <button mat-button class="add-member" (click)="add(family.person.id)"><mat-icon>group_add</mat-icon> Προσθήκη μέλους</button>
+        </section>
+      } @empty {
+        <section class="panel"><p class="empty">Κανένα πρόσωπο δεν ταιριάζει στην αναζήτηση.</p></section>
+      }
+    </div>
+  }
+</div>
+
+<ng-template #card let-p let-member="member">
+  <div class="person" [class.member]="member">
+    <span class="avatar" aria-hidden="true">{{ p.firstName[0] }}</span>
+    <div class="grow">
+      <div class="name-row">
+        <strong>{{ p.fullName }}</strong>
+        @if (p.relationship) { <span class="chip">{{ p.relationship }}</span> }
+      </div>
+      <div class="dates">
+        @if (p.nextBirthday) {
+          <span [class.soon]="daysTo(p.nextBirthday) <= p.remindDaysBefore"><mat-icon>cake</mat-icon> {{ p.nextBirthday | date: 'd MMM' }} · {{ when(p.nextBirthday) }}@if (p.turningAge) { · κλείνει τα {{ p.turningAge }} }</span>
+        }
+        @if (p.nextNameDay) {
+          <span [class.soon]="daysTo(p.nextNameDay) <= p.remindDaysBefore"><mat-icon>celebration</mat-icon> {{ p.nextNameDay | date: 'd MMM' }} · {{ when(p.nextNameDay) }}</span>
+        } @else {
+          <span class="muted"><mat-icon>celebration</mat-icon> Χωρίς γιορτή</span>
+        }
+        @if (p.giftBudget) { <span><mat-icon>redeem</mat-icon> {{ p.giftBudget | currency: 'EUR' }}</span> }
+      </div>
+      @if (p.phone || p.email || p.address) {
+        <div class="contact">
+          @if (p.phone) { <a [href]="'tel:' + p.phone"><mat-icon>call</mat-icon> {{ p.phone }}</a> }
+          @if (p.email) { <a [href]="'mailto:' + p.email"><mat-icon>mail</mat-icon> {{ p.email }}</a> }
+          @if (p.address) { <span><mat-icon>home</mat-icon> {{ p.address }}</span> }
+        </div>
+      }
+      @if (p.notes) { <p class="notes">{{ p.notes }}</p> }
+    </div>
+    <div class="row-actions">
+      <button mat-icon-button (click)="edit(p)" aria-label="Επεξεργασία" matTooltip="Επεξεργασία"><mat-icon>edit</mat-icon></button>
+      <button mat-icon-button color="warn" (click)="remove(p)" aria-label="Διαγραφή" matTooltip="Διαγραφή"><mat-icon>delete_outline</mat-icon></button>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,42 @@
+<div class="page">
+  <header class="page-header">
+    <div><h1>Εορτολόγιο & γενέθλια</h1><p>Ποιος γιορτάζει και ποιος έχει γενέθλια, μαζί με όσα θα χρειαστείς για δώρα.</p></div>
+    <div class="header-actions">
+      <app-month-nav [value]="month" (valueChange)="onMonthChange($event)" />
+      <a mat-stroked-button color="primary" routerLink="/people"><mat-icon>favorite</mat-icon> Πρόσωπα</a>
+    </div>
+  </header>
+
+  @if (errorMessage && !hasLoaded) {
+    <section class="panel"><div class="page-state error-state"><mat-icon>cloud_off</mat-icon><strong>Δεν ήταν δυνατή η φόρτωση</strong><span>{{ errorMessage }}</span><button mat-stroked-button color="primary" (click)="load()"><mat-icon>refresh</mat-icon> Δοκίμασε ξανά</button></div></section>
+  } @else if (loading && !hasLoaded) {
+    <section class="panel"><div class="page-state"><mat-spinner diameter="42"></mat-spinner><strong>Φόρτωση…</strong></div></section>
+  } @else {
+    <div class="summary">
+      <div class="panel stat"><mat-icon>cake</mat-icon><span><strong>{{ celebrations.length }}</strong> {{ celebrations.length === 1 ? 'γιορτή ή γενέθλια' : 'γιορτές και γενέθλια' }} δικών σου αυτόν τον μήνα</span></div>
+      <div class="panel stat"><mat-icon>redeem</mat-icon><span>Δώρα: <strong>{{ giftTotal | currency: 'EUR' }}</strong></span></div>
+      <mat-slide-toggle [(ngModel)]="mineOnly">Μόνο τα δικά μου πρόσωπα</mat-slide-toggle>
+    </div>
+
+    <section class="panel" [class.is-loading]="loading">
+      @for (day of shownDays; track day.date) {
+        <div class="day" [class.today]="day.date === today" [class.mine]="day.celebrations.length">
+          <div class="date"><strong>{{ day.date | date: 'd' }}</strong><small>{{ day.date | date: 'EEE' }}</small></div>
+          <div class="body">
+            @for (item of day.celebrations; track item.personId + item.kind) {
+              <div class="celebration">
+                <mat-icon [class.birthday]="item.kind === 'Birthday'">{{ item.kind === 'Birthday' ? 'cake' : 'celebration' }}</mat-icon>
+                <span class="who"><strong>{{ item.personName }}</strong>@if (item.relatedToName) { <small class="muted"> · {{ item.relationship || 'μέλος' }} του/της {{ item.relatedToName }}</small> } @else if (item.relationship) { <small class="muted"> · {{ item.relationship }}</small> }</span>
+                <span class="what">{{ label(item) }}</span>
+                @if (item.giftBudget) { <span class="chip">{{ item.giftBudget | currency: 'EUR' }}</span> }
+              </div>
+            }
+            @if (day.names.length) { <p class="names">{{ day.names.join(', ') }}</p> }
+          </div>
+        </div>
+      } @empty {
+        <p class="empty">Κανένα από τα πρόσωπά σου δεν γιορτάζει ούτε έχει γενέθλια αυτόν τον μήνα.</p>
+      }
+    </section>
+  }
+</div>

@@ -1,4 +1,4 @@
-.layout { min-height: 100vh; display: grid; grid-template-columns: 240px 1fr; }
+.layout { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr) 300px; }
 .sidebar { position: sticky; top: 0; height: 100vh; padding: 22px 16px; border-right: 1px solid var(--cf-border); background: #fff; display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 28px; font-size: 20px; font-weight: 800; }
 .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--cf-primary); color: #fff; }
@@ -9,6 +9,30 @@
 .nav a:hover { background: #f5f7fb; color: var(--cf-text); }
 .nav a.active, .mobile-nav a.active { background: var(--cf-primary-soft); color: var(--cf-primary); }
 .nav mat-icon { width: 21px; height: 21px; font-size: 20px; }
+.reminders { display: grid; align-content: start; gap: 6px; }
+.sidebar-reminders { display: none; margin-top: 22px; min-height: 0; flex: 1 1 auto; overflow-y: auto; }
+.reminders-panel { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 0 14px 22px; border-left: 1px solid var(--cf-border); background: #fff; }
+.panel-head { position: sticky; top: 0; z-index: 1; height: 64px; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding: 0 4px; border-bottom: 1px solid var(--cf-border); background: #fff; font-size: 14px; font-weight: 700; }
+.panel-head mat-icon { width: 20px; height: 20px; font-size: 20px; color: var(--cf-primary); }
+.count { margin-left: auto; min-width: 22px; padding: 2px 7px; border-radius: 99px; background: var(--cf-primary-soft); color: var(--cf-primary); font-size: 12px; text-align: center; }
+.mobile-label { margin-top: 16px; }
+.reminder { display: flex; align-items: center; gap: 6px; padding: 9px 8px 9px 10px; border-radius: 10px; border-left: 3px solid var(--cf-border); background: #f7f9fc; }
+.reminder.soon { border-left-color: #e8a33d; }
+.reminder.overdue { border-left-color: var(--cf-danger); background: #fff4f4; }
+.reminder-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.reminder-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 600; }
+.reminder-text small { color: var(--cf-muted); font-size: 11px; }
+.reminder-when { font-size: 11px; color: var(--cf-primary); }
+.reminder.soon .reminder-when { color: #b26a00; }
+.reminder.overdue .reminder-when { color: var(--cf-danger); }
+.reminder-pay { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--cf-muted); cursor: pointer; }
+.reminder-pay:hover:not(:disabled) { background: #e5f7f1; color: var(--cf-income); }
+.reminder-pay:disabled { opacity: .5; cursor: default; }
+.reminder.celebration { border-left-color: #f0a6c0; background: #fdf5f8; color: inherit; text-decoration: none; }
+.reminder.celebration.soon { border-left-color: #c2185b; }
+.reminder.celebration .reminder-when { color: #c2185b; }
+.reminder-icon { flex: 0 0 auto; width: 20px; height: 20px; font-size: 20px; color: #c2185b; }
+.reminders-empty { margin: 0; padding: 4px 10px; color: var(--cf-muted); font-size: 12px; }
 .logout { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border: 0; background: transparent; color: var(--cf-muted); font-weight: 600; cursor: pointer; }
 .main-area { min-width: 0; }
 .topbar { position: sticky; top: 0; z-index: 5; height: 64px; padding: 0 28px; border-bottom: 1px solid var(--cf-border); background: #fffffff2; backdrop-filter: blur(6px); display: flex; align-items: center; gap: 14px; }
@@ -19,9 +43,15 @@
 .content { padding: 28px; max-width: 1360px; margin: auto; }
 .menu { display: none; border: 0; background: transparent; cursor: pointer; }
 .backdrop { position: fixed; z-index: 29; inset: 0; background: #0f172a66; }
-.mobile-nav { position: fixed; z-index: 30; inset: 0 25% 0 0; max-width: 320px; padding: 20px; background: white; box-shadow: 10px 0 40px #0002; display: grid; align-content: start; gap: 6px; }
+.mobile-nav { position: fixed; z-index: 30; inset: 0 25% 0 0; max-width: 320px; padding: 20px; overflow-y: auto; background: white; box-shadow: 10px 0 40px #0002; display: grid; align-content: start; gap: 6px; }
 .mobile-nav a { color: var(--cf-text); }
 .close { justify-self: end; border: 0; background: none; cursor: pointer; }
+/* Below this width the right column would squeeze the pages, so the reminders go back under the menu. */
+@media (max-width: 1200px) {
+  .layout { grid-template-columns: 240px minmax(0, 1fr); }
+  .reminders-panel { display: none; }
+  .sidebar-reminders { display: block; }
+}
 @media (max-width: 850px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { display: none; }

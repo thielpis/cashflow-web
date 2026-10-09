@@ -60,6 +60,7 @@ export interface TransactionDialogData {
         <mat-form-field appearance="outline">
           <mat-label>Κατηγορία</mat-label>
           <mat-select formControlName="categoryId">
+            <mat-select-trigger>{{ selectedCategoryName }}</mat-select-trigger>
             @for (category of options; track category.id) {
               <mat-option [value]="category.id">
                 <span class="option"><app-category-icon [icon]="category.icon" [color]="category.color" [size]="26" />{{ category.name }}</span>
@@ -139,6 +140,12 @@ export class TransactionDialogComponent {
     description: [this.existing?.description ?? ''],
     notes: [this.existing?.notes ?? ''],
   });
+
+  /** Shown in the closed select, so the icon's ligature text isn't included. */
+  get selectedCategoryName(): string {
+    const id = this.form.controls.categoryId.value;
+    return this.categories.find(c => c.id === id)?.name ?? '';
+  }
 
   constructor() {
     void this.loadCategories();

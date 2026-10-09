@@ -36,6 +36,22 @@ export const routes: Routes = [
         title: 'Πάγιες κινήσεις | CashFlow',
       },
       {
+        path: 'goals',
+        loadComponent: () => import('./features/goals/goals.component').then(m => m.GoalsComponent),
+        title: 'Στόχοι | CashFlow',
+      },
+      {
+        path: 'people',
+        loadComponent: () => import('./features/people/people.component').then(m => m.PeopleComponent),
+        title: 'Αγαπημένα πρόσωπα | CashFlow',
+      },
+      {
+        path: 'celebrations',
+        loadComponent: () =>
+          import('./features/celebrations/celebrations.component').then(m => m.CelebrationsComponent),
+        title: 'Εορτολόγιο | CashFlow',
+      },
+      {
         path: 'categories',
         loadComponent: () =>
           import('./features/categories/categories.component').then(m => m.CategoriesComponent),
